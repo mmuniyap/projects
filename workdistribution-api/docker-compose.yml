@@ -1,27 +1,30 @@
 version: '3'
-
 services:
-
-  myapp-mysql:
-    image: mysql:5.7
+  mysql:
+   container_name: mysql
+   image: mysql/mysql-server:5.7
+   environment:
+    MYSQL_DATABASE: work_dist_db
+    MYSQL_USER: task_assignment_user
+    MYSQL_PASSWORD: TaskAssignmentUser
+    MYSQL_ROOT_PASSWORD: root
+   ports:
+   - "3306:3306"
+   restart: always
+  
+  app:
+    build: ./
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ~/.m2:/root/.m2
+    expose:
+      - "8080"
+    command: mvn clean spring-boot:run
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=work_dist_db
-      - MYSQL_USER=task_assignment_user
-      - MYSQL_PASSWORD=TaskAssignmentUser
-    ports:
-      - 3306:3306
-
-  myapp-main:
-    image: workdist-api
-    restart: on-failure
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.0:3306/work_dist_db?autoReconnect=true&useSSL=false
+      DATABASE_USER: task_assignment_user
+      DATABASE_PASSWORD: TaskAssignmentUser
+      DATABASE_NAME: work_dist_db
     depends_on:
-      - myapp-mysql
-    ports:
-      - 8080:8080
-    environment:
-      - DATABASE_HOST=localhost
-      - DATABASE_USER=task_assignment_user
-      - DATABASE_PASSWORD=TaskAssignmentUser
-      - DATABASE_NAME=work_dist_db
-      - DATABASE_PORT=3306
+      - mysql
