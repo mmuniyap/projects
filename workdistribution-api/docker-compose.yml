@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+
+  myapp-mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=work_dist_db
+      - MYSQL_USER=task_assignment_user
+      - MYSQL_PASSWORD=TaskAssignmentUser
+    ports:
+      - 3306:3306
+
+  myapp-main:
+    image: workdist-api
+    restart: on-failure
+    depends_on:
+      - myapp-mysql
+    ports:
+      - 8080:8080
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_USER=task_assignment_user
+      - DATABASE_PASSWORD=TaskAssignmentUser
+      - DATABASE_NAME=work_dist_db
+      - DATABASE_PORT=3306
